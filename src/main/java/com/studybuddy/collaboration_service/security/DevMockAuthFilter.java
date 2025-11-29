@@ -29,7 +29,7 @@ public class DevMockAuthFilter extends OncePerRequestFilter {
 
             UsernamePasswordAuthenticationToken auth =
                     new UsernamePasswordAuthenticationToken(
-                            userId.toString(), // principal
+                            userId.toString(),
                             null,
                             List.of(new SimpleGrantedAuthority("ROLE_USER"))
                     );
