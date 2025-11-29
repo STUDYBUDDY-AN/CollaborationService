@@ -37,6 +37,24 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(NotGroupMemberException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public Map<String, Object> handleNotGroupMember(NotGroupMemberException ex) {
+        return Map.of(
+                "error", "NOT_GROUP_MEMBER",
+                "message", ex.getMessage()
+        );
+    }
+
+    @ExceptionHandler(MessageNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, Object> handleMessageNotFound(MessageNotFoundException ex) {
+        return Map.of(
+                "error", "MESSAGE_NOT_FOUND",
+                "message", ex.getMessage()
+        );
+    }
+
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public Map<String, Object> handleAny(Exception ex) {
