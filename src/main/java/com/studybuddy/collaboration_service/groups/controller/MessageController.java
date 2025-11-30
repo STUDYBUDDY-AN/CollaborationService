@@ -22,6 +22,34 @@ public class MessageController {
 
     private final MessageService messageService;
 
+    @GetMapping
+    public ResponseEntity<List<MessageResponse>> getMessages(
+            @PathVariable UUID groupId,
+            @RequestParam(required = false) String before,
+            @RequestParam(required = false) String after,
+            @RequestParam(defaultValue = "50") int limit
+    ) {
+        List<GroupMessage> messages;
+
+        if (before != null) {
+            messages = messageService.getMessagesBefore(groupId, Instant.parse(before), limit);
+        } else if (after != null) {
+            messages = messageService.getMessagesAfter(groupId, Instant.parse(after), limit);
+        } else {
+            messages = messageService.getRecentMessages(groupId, limit);
+        }
+
+        List<MessageResponse> response = messages.stream()
+                .map(message -> new MessageResponse(
+                        message.getId(),
+                        message.getSenderId(),
+                        message.getContent(),
+                        message.getSentAt()
+                )).toList();
+
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/send")
     public ResponseEntity<?> sendMessage(
             @PathVariable UUID groupId,
@@ -35,44 +63,7 @@ public class MessageController {
                 .body(Map.of("messageId", messageId));
     }
 
-    @GetMapping("/recent")
-    public ResponseEntity<List<MessageResponse>> getRecentMessages(
-            @PathVariable UUID groupId,
-            @RequestParam(defaultValue = "50") int limit
-    ) {
-        List<MessageResponse> response = messageService
-                .getRecentMessages(groupId, limit)
-                .stream()
-                .map(message -> new MessageResponse(
-                        message.getId(),
-                        message.getSenderId(),
-                        message.getContent(),
-                        message.getSentAt()
-                )).toList();
-
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/after")
-    public ResponseEntity<List<MessageResponse>> getMessagesAfter(
-            @PathVariable UUID groupId,
-            @RequestParam Instant after,
-            @RequestParam(defaultValue = "50") int limit
-    ) {
-        List<MessageResponse> response = messageService
-                .getMessagesAfter(groupId, after, limit)
-                .stream()
-                .map(message -> new MessageResponse(
-                        message.getId(),
-                        message.getSenderId(),
-                        message.getContent(),
-                        message.getSentAt()
-                )).toList();
-
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/fetch")
+    @GetMapping("/since")
     public ResponseEntity<List<MessageResponse>> fetchMessages(
             @PathVariable UUID groupId,
             @RequestParam Instant since
@@ -89,32 +80,5 @@ public class MessageController {
 
         return ResponseEntity.ok(response);
     }
-
-    @GetMapping("/before")
-    public ResponseEntity<List<MessageResponse>> getMessages(
-            @PathVariable UUID groupId,
-            @RequestParam String before,
-            @RequestParam(defaultValue = "50") int limit
-    ) {
-        List<GroupMessage> messages;
-
-        if (before != null) {
-            Instant beforeInstant = Instant.parse(before);
-            messages = messageService.getMessagesBefore(groupId, beforeInstant, limit);
-        } else {
-            messages = messageService.getRecentMessages(groupId, limit);
-        }
-
-        List<MessageResponse> response = messages.stream()
-                .map(message -> new MessageResponse(
-                        message.getId(),
-                        message.getSenderId(),
-                        message.getContent(),
-                        message.getSentAt()
-                )).toList();
-
-        return ResponseEntity.ok(response);
-    }
-
 }
 
