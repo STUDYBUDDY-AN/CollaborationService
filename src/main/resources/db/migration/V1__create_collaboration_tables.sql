@@ -1,4 +1,4 @@
--- V1__create_collab_tables.sql
+-- V1__create_collaboration_tables.sql
 
 CREATE TABLE study_groups (
     id CHAR(36) PRIMARY KEY,
