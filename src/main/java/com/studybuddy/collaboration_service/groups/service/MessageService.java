@@ -1,5 +1,7 @@
 package com.studybuddy.collaboration_service.groups.service;
 
+import com.studybuddy.collaboration_service.groups.dto.Response.AttachmentResponse;
+import com.studybuddy.collaboration_service.groups.dto.Response.MessageResponse;
 import com.studybuddy.collaboration_service.groups.entities.GroupMessage;
 import com.studybuddy.collaboration_service.groups.entities.MessageAttachment;
 import com.studybuddy.collaboration_service.groups.exception.ForbiddenException;
@@ -53,32 +55,63 @@ public class MessageService {
         return messageId;
     }
 
+    @Transactional
+    public UUID sendMessageWithAttachment(
+            UUID groupId,
+            UUID senderId,
+            String content,
+            String attachmentUrl,
+            String attachmentType,
+            Long attachmentSize
+    ) {
+        if ((content == null || content.isBlank()) &&
+                (attachmentUrl == null || attachmentUrl.isBlank())) {
+            throw new IllegalArgumentException("Message must contain text or attachment");
+        }
+
+        GroupMessage saved = sendAndReturn(
+                groupId,
+                senderId,
+                content,
+                attachmentUrl,
+                attachmentType,
+                attachmentSize
+        );
+
+        return saved.getId();
+    }
+
+
     //----------------------------------------------
     // Get Messages from date to a certain limit
     //----------------------------------------------
-    public List<GroupMessage> getMessagesAfter(UUID groupId, Instant after, int limit) {
-        return groupMessageRepository.getMessagesAfter(groupId, after, limit);
+    public List<MessageResponse> getMessagesAfterWithAttachments(UUID groupId, Instant after, int limit) {
+        var messages = groupMessageRepository.getMessagesAfter(groupId, after, limit);
+        return mapToResponse(messages);
     }
 
     //----------------------------------------------
     // Get Recent Messages
     //----------------------------------------------
-    public List<GroupMessage> getRecentMessages(UUID groupId, int limit) {
-        return groupMessageRepository.getRecentMessages(groupId, limit);
+    public List<MessageResponse> getRecentMessagesWithAttachments(UUID groupId, int limit) {
+        var messages = groupMessageRepository.getRecentMessages(groupId, limit);
+        return mapToResponse(messages);
     }
 
     //----------------------------------------------
     // Fetch Messages from a certain date
     //----------------------------------------------
-    public List<GroupMessage> fetchMessages(UUID groupId, Instant since) {
-        return groupMessageRepository.fetchMessages(groupId, since);
+    public List<MessageResponse> fetchMessagesWithAttachments(UUID groupId, Instant since) {
+        var messages = groupMessageRepository.fetchMessages(groupId, since);
+        return mapToResponse(messages);
     }
 
     //----------------------------------------------
     // Get Messages before a certain date
     //----------------------------------------------
-    public List<GroupMessage> getMessagesBefore(UUID groupId, Instant before, int limit) {
-        return groupMessageRepository.getMessagesBefore(groupId, before, limit);
+    public List<MessageResponse> getMessagesBeforeWithAttachments(UUID groupId, Instant before, int limit) {
+        var messages = groupMessageRepository.getMessagesBefore(groupId, before, limit);
+        return mapToResponse(messages);
     }
 
     //----------------------------------------------
@@ -186,5 +219,30 @@ public class MessageService {
     private boolean isAdmin(UUID userId) {
         return false;
     }
+
+    private List<MessageResponse> mapToResponse(List<GroupMessage> messages) {
+        return messages.stream()
+                .map(message -> {
+                    var attachments = attachmentRepository.findByMessageId(message.getId())
+                            .stream()
+                            .map(att -> new AttachmentResponse(
+                                    att.getId(),
+                                    att.getFileUrl(),
+                                    att.getFileType(),
+                                    att.getFileSizeBytes(),
+                                    att.getCreatedAt()
+                            )).toList();
+
+                    return new MessageResponse(
+                            message.getId(),
+                            message.getSenderId(),
+                            message.getContent(),
+                            message.getSentAt(),
+                            attachments
+                    );
+                })
+                .toList();
+    }
+
 
 }

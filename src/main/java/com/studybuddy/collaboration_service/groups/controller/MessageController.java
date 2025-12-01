@@ -2,7 +2,6 @@ package com.studybuddy.collaboration_service.groups.controller;
 
 import com.studybuddy.collaboration_service.groups.dto.Request.SendMessageRequest;
 import com.studybuddy.collaboration_service.groups.dto.Response.MessageResponse;
-import com.studybuddy.collaboration_service.groups.entities.GroupMessage;
 import com.studybuddy.collaboration_service.groups.service.MessageService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,7 +15,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/groups/{groupId}/messages")
+@RequestMapping("api/v1/groups/{groupId}/messages")
 @AllArgsConstructor
 public class MessageController {
 
@@ -29,35 +28,39 @@ public class MessageController {
             @RequestParam(required = false) String after,
             @RequestParam(defaultValue = "50") int limit
     ) {
-        List<GroupMessage> messages;
-
         if (before != null) {
-            messages = messageService.getMessagesBefore(groupId, Instant.parse(before), limit);
-        } else if (after != null) {
-            messages = messageService.getMessagesAfter(groupId, Instant.parse(after), limit);
-        } else {
-            messages = messageService.getRecentMessages(groupId, limit);
+            return ResponseEntity.ok(
+                    messageService.getMessagesBeforeWithAttachments(groupId, Instant.parse(before), limit)
+            );
         }
-
-        List<MessageResponse> response = messages.stream()
-                .map(message -> new MessageResponse(
-                        message.getId(),
-                        message.getSenderId(),
-                        message.getContent(),
-                        message.getSentAt()
-                )).toList();
-
-        return ResponseEntity.ok(response);
+        else if (after != null) {
+            return ResponseEntity.ok(
+                    messageService.getMessagesAfterWithAttachments(groupId, Instant.parse(after), limit)
+            );
+        }
+        else {
+            return ResponseEntity.ok(
+                    messageService.getRecentMessagesWithAttachments(groupId, limit)
+            );
+        }
     }
 
-    @PostMapping("/send")
+    @PostMapping
     public ResponseEntity<?> sendMessage(
             @PathVariable UUID groupId,
             @RequestBody SendMessageRequest request,
             Authentication authentication
     ) {
         UUID senderId = UUID.fromString(authentication.getName());
-        UUID messageId = messageService.sendMessage(groupId, senderId, request.content());
+
+        UUID messageId = messageService.sendMessageWithAttachment(
+                groupId,
+                senderId,
+                request.content(),
+                request.attachmentUrl(),
+                request.attachmentType(),
+                request.attachmentSize()
+        );
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Map.of("messageId", messageId));
@@ -68,17 +71,9 @@ public class MessageController {
             @PathVariable UUID groupId,
             @RequestParam Instant since
     ) {
-        List<MessageResponse> response = messageService
-                .fetchMessages(groupId, since)
-                .stream()
-                .map(message -> new MessageResponse(
-                        message.getId(),
-                        message.getSenderId(),
-                        message.getContent(),
-                        message.getSentAt()
-                )).toList();
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(
+                messageService.fetchMessagesWithAttachments(groupId, since)
+        );
     }
 }
 

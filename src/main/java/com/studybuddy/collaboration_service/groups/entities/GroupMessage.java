@@ -14,5 +14,9 @@ public class GroupMessage {
     private UUID senderId;
     private String content;
     private Instant sentAt;
+    private Instant editedAt;
+    private boolean deleted;
+    private Instant deletedAt;
+    private UUID deletedBy;
 }
 

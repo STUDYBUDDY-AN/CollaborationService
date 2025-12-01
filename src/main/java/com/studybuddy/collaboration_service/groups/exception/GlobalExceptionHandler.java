@@ -63,5 +63,14 @@ public class GlobalExceptionHandler {
                 "message", ex.getMessage()
         );
     }
+
+    @ExceptionHandler(ForbiddenException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public Map<String, Object> handleForbidden(ForbiddenException ex) {
+        return Map.of(
+                "error", "FORBIDDEN",
+                "message", ex.getMessage()
+        );
+    }
 }
 

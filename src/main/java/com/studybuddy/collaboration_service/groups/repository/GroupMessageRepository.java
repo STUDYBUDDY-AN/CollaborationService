@@ -26,6 +26,10 @@ public class GroupMessageRepository {
             message.setSenderId(UUID.fromString(rs.getString("sender_id")));
             message.setContent(rs.getString("content"));
             message.setSentAt(rs.getTimestamp("sent_at").toInstant());
+            message.setEditedAt(rs.getTimestamp("edited_at").toInstant());
+            message.setDeletedAt(rs.getTimestamp("deleted_at").toInstant());
+            message.setDeletedBy(UUID.fromString(rs.getString("deleted_by")));
+            message.setDeleted(rs.getBoolean("deleted"));
         return message;
     };
 
@@ -106,5 +110,33 @@ public class GroupMessageRepository {
             """;
 
         return jdbc.query(sql, mapper, messageId.toString()).stream().findFirst();
+    }
+
+    public void updateContent(GroupMessage msg) {
+        String sql = """
+            UPDATE group_messages
+            SET content = ?, edited_at = ?
+            WHERE id = ?
+        """;
+
+        jdbc.update(sql,
+                msg.getContent(),
+                Timestamp.from(msg.getEditedAt()),
+                msg.getId().toString()
+        );
+    }
+
+    public void softDelete(GroupMessage msg) {
+        String sql = """
+            UPDATE group_messages
+            SET deleted = true, deleted_at = ?, deleted_by = ?
+            WHERE id = ?
+        """;
+
+        jdbc.update(sql,
+                Timestamp.from(msg.getDeletedAt()),
+                msg.getDeletedBy().toString(),
+                msg.getId().toString()
+        );
     }
 }
