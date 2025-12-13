@@ -66,5 +66,23 @@ public class FileController {
 
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/presign/note")
+    public ResponseEntity<PresignUploadResponse> presignUploadForNote(
+            @RequestBody PresignUploadRequest request,
+            @RequestParam("group_id") UUID groupId,
+            @RequestParam("message_id") UUID messageId
+    ) throws Exception {
+
+        PresignUploadResponse response =
+                fileStorageService.createPresignedForAttachment(
+                        groupId,
+                        messageId,
+                        request.fileName(),
+                        request.fileType()
+                );
+
+        return ResponseEntity.ok(response);
+    }
 }
 

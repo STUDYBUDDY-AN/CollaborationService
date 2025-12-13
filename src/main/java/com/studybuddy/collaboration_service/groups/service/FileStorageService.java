@@ -66,5 +66,10 @@ public class FileStorageService {
         return createPresigned(objectName, fileType);
     }
 
+    public PresignUploadResponse createPresignedForUserNote(UUID groupId, String fileName, String fileType) throws Exception {
+        String objectName = "notes/" + groupId + "/" + UUID.randomUUID() + "-" + fileName;
+        return createPresigned(objectName, fileType);
+    }
+
 }
 
