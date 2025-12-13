@@ -114,6 +114,30 @@ public class MessageService {
         return mapToResponse(messages);
     }
 
+    private List<MessageResponse> mapToResponse(List<GroupMessage> messages) {
+        return messages.stream()
+                .map(message -> {
+                    var attachments = attachmentRepository.findByMessageId(message.getId())
+                            .stream()
+                            .map(att -> new AttachmentResponse(
+                                    att.getId(),
+                                    att.getFileUrl(),
+                                    att.getFileType(),
+                                    att.getFileSizeBytes(),
+                                    att.getCreatedAt()
+                            )).toList();
+
+                    return new MessageResponse(
+                            message.getId(),
+                            message.getSenderId(),
+                            message.getContent(),
+                            message.getSentAt(),
+                            attachments
+                    );
+                })
+                .toList();
+    }
+
     //----------------------------------------------
     // Send Message and Return
     //----------------------------------------------
@@ -218,30 +242,6 @@ public class MessageService {
 
     private boolean isAdmin(UUID userId) {
         return false;
-    }
-
-    private List<MessageResponse> mapToResponse(List<GroupMessage> messages) {
-        return messages.stream()
-                .map(message -> {
-                    var attachments = attachmentRepository.findByMessageId(message.getId())
-                            .stream()
-                            .map(att -> new AttachmentResponse(
-                                    att.getId(),
-                                    att.getFileUrl(),
-                                    att.getFileType(),
-                                    att.getFileSizeBytes(),
-                                    att.getCreatedAt()
-                            )).toList();
-
-                    return new MessageResponse(
-                            message.getId(),
-                            message.getSenderId(),
-                            message.getContent(),
-                            message.getSentAt(),
-                            attachments
-                    );
-                })
-                .toList();
     }
 
 
