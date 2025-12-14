@@ -28,15 +28,33 @@ public class GroupNoteRepository {
         note.setFileUrl(rs.getString("file_url"));
         note.setFileType(rs.getString("file_type"));
         note.setFileSizeBytes(rs.getLong("file_size_bytes"));
-        note.setCreatedAt(rs.getTimestamp("created_at").toInstant());
+
+        Timestamp created = rs.getTimestamp("created_at");
+        note.setCreatedAt(created != null ? created.toInstant() : null);
+
+        note.setPreviewAvailable(rs.getBoolean("preview_available"));
+        note.setPreviewType(rs.getString("preview_type"));
+
         return note;
     };
 
+
     public void save(GroupNote note) {
         String sql = """
-                    INSERT INTO notes (id, group_id, uploaded_by, title, file_url, file_type, file_size_bytes, created_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                """;
+        INSERT INTO notes (
+            id,
+            group_id,
+            uploaded_by,
+            title,
+            file_url,
+            file_type,
+            file_size_bytes,
+            preview_available,
+            preview_type,
+            created_at
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """;
 
         jdbc.update(sql,
                 note.getId().toString(),
@@ -46,6 +64,8 @@ public class GroupNoteRepository {
                 note.getFileUrl(),
                 note.getFileType(),
                 note.getFileSizeBytes(),
+                note.isPreviewAvailable(),
+                note.getPreviewType(),
                 Timestamp.from(note.getCreatedAt())
         );
     }
@@ -108,7 +128,9 @@ public class GroupNoteRepository {
             UUID groupId,
             String query,
             String fileType,
-            UUID uploadedBy
+            UUID uploadedBy,
+            int limit,
+            int offset
     ) {
         StringBuilder sql = new StringBuilder("""
         SELECT *
@@ -119,7 +141,7 @@ public class GroupNoteRepository {
         List<Object> params = new ArrayList<>();
         params.add(groupId.toString());
 
-        if (query != null) {
+        if (query != null && !query.isBlank()) {
             sql.append(" AND LOWER(title) LIKE ?");
             params.add("%" + query.toLowerCase() + "%");
         }
@@ -135,6 +157,9 @@ public class GroupNoteRepository {
         }
 
         sql.append(" ORDER BY created_at DESC");
+        sql.append(" ORDER BY created_at DESC LIMIT ? OFFSET ?");
+        params.add(limit);
+        params.add(offset);
 
         return jdbc.query(sql.toString(), mapper, params.toArray());
     }

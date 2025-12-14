@@ -42,11 +42,38 @@ public class GroupNoteService {
         note.setFileType(type);
         note.setFileSizeBytes(size);
         note.setCreatedAt(Instant.now());
+        enrichPreviewMetadata(note);
 
         noteRepo.save(note);
 
         return noteId;
     }
+
+    private void enrichPreviewMetadata(GroupNote note) {
+        if (note.getFileType() == null) {
+            note.setPreviewAvailable(false);
+            note.setPreviewType("NONE");
+            return;
+        }
+
+        if (note.getFileType().startsWith("image/")) {
+            note.setPreviewAvailable(true);
+            note.setPreviewType("IMAGE");
+        }
+        else if (note.getFileType().equals("application/pdf")) {
+            note.setPreviewAvailable(true);
+            note.setPreviewType("PDF");
+        }
+        else if (note.getFileType().startsWith("text/")) {
+            note.setPreviewAvailable(true);
+            note.setPreviewType("TEXT");
+        }
+        else {
+            note.setPreviewAvailable(false);
+            note.setPreviewType("NONE");
+        }
+    }
+
 
     public List<GroupNote> getNotes(UUID groupId) {
         return noteRepo.findByGroup(groupId);
@@ -56,9 +83,11 @@ public class GroupNoteService {
             UUID groupId,
             String query,
             String fileType,
-            UUID uploadedBy
+            UUID uploadedBy,
+            int limit,
+            int offset
     ) {
-        return noteRepo.search(groupId, query, fileType, uploadedBy);
+        return noteRepo.search(groupId, query, fileType, uploadedBy, limit, offset);
     }
 
 }

@@ -49,10 +49,12 @@ public class GroupNoteController {
             @PathVariable UUID groupId,
             @RequestParam(required = false) String q,
             @RequestParam(required = false) String fileType,
-            @RequestParam(required = false) UUID uploadedBy
+            @RequestParam(required = false) UUID uploadedBy,
+            @RequestParam(defaultValue = "50") int limit,
+            @RequestParam() int offset
     ) {
         return ResponseEntity.ok(
-                groupNoteService.searchNotes(groupId, q, fileType, uploadedBy)
+                groupNoteService.searchNotes(groupId, q, fileType, uploadedBy, limit, offset)
         );
     }
 
