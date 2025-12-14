@@ -51,4 +51,14 @@ public class GroupNoteService {
     public List<GroupNote> getNotes(UUID groupId) {
         return noteRepo.findByGroup(groupId);
     }
+
+    public List<GroupNote> searchNotes(
+            UUID groupId,
+            String query,
+            String fileType,
+            UUID uploadedBy
+    ) {
+        return noteRepo.search(groupId, query, fileType, uploadedBy);
+    }
+
 }

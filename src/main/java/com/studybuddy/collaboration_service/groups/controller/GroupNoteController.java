@@ -17,7 +17,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class GroupNoteController {
 
-    private final GroupNoteService service;
+    private final GroupNoteService groupNoteService;
 
     @PostMapping
     public ResponseEntity<?> uploadNote(
@@ -27,7 +27,7 @@ public class GroupNoteController {
     ) {
         UUID userId = UUID.fromString(authentication.getName());
 
-        UUID id = service.saveNote(
+        UUID id = groupNoteService.saveNote(
                 groupId,
                 userId,
                 request.title(),
@@ -41,6 +41,19 @@ public class GroupNoteController {
 
     @GetMapping
     public List<GroupNote> getNotes(@PathVariable UUID groupId) {
-        return service.getNotes(groupId);
+        return groupNoteService.getNotes(groupId);
     }
+
+    @GetMapping
+    public ResponseEntity<List<GroupNote>> getNotes(
+            @PathVariable UUID groupId,
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String fileType,
+            @RequestParam(required = false) UUID uploadedBy
+    ) {
+        return ResponseEntity.ok(
+                groupNoteService.searchNotes(groupId, q, fileType, uploadedBy)
+        );
+    }
+
 }

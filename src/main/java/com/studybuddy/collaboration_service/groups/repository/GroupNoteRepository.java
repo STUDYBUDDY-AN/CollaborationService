@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -58,4 +59,85 @@ public class GroupNoteRepository {
 
         return jdbc.query(sql, mapper, groupId.toString());
     }
+
+    public List<GroupNote> searchByTitle(UUID groupId, String query) {
+        String sql = """
+        SELECT *
+        FROM notes
+        WHERE group_id = ?
+          AND LOWER(title) LIKE ?
+        ORDER BY created_at DESC
+    """;
+
+        return jdbc.query(
+                sql,
+                mapper,
+                groupId.toString(),
+                "%" + query.toLowerCase() + "%"
+        );
+    }
+
+    public List<GroupNote> filterByFileType(UUID groupId, String fileType) {
+        String sql = """
+        SELECT *
+        FROM notes
+        WHERE group_id = ?
+          AND file_type = ?
+        ORDER BY created_at DESC
+    """;
+
+        return jdbc.query(sql, mapper, groupId.toString(), fileType);
+    }
+
+    public List<GroupNote> filterByUploader(UUID groupId, UUID uploaderId) {
+        String sql = """
+        SELECT *
+        FROM notes
+        WHERE group_id = ?
+          AND uploaded_by = ?
+        ORDER BY created_at DESC
+    """;
+
+        return jdbc.query(sql, mapper,
+                groupId.toString(),
+                uploaderId.toString()
+        );
+    }
+
+    public List<GroupNote> search(
+            UUID groupId,
+            String query,
+            String fileType,
+            UUID uploadedBy
+    ) {
+        StringBuilder sql = new StringBuilder("""
+        SELECT *
+        FROM notes
+        WHERE group_id = ?
+    """);
+
+        List<Object> params = new ArrayList<>();
+        params.add(groupId.toString());
+
+        if (query != null) {
+            sql.append(" AND LOWER(title) LIKE ?");
+            params.add("%" + query.toLowerCase() + "%");
+        }
+
+        if (fileType != null) {
+            sql.append(" AND file_type = ?");
+            params.add(fileType);
+        }
+
+        if (uploadedBy != null) {
+            sql.append(" AND uploaded_by = ?");
+            params.add(uploadedBy.toString());
+        }
+
+        sql.append(" ORDER BY created_at DESC");
+
+        return jdbc.query(sql.toString(), mapper, params.toArray());
+    }
+
+
 }

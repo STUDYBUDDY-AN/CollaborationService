@@ -17,5 +17,7 @@ public class GroupNote {
     private String fileType;
     private long fileSizeBytes;
     private Instant createdAt;
+    private boolean previewAvailable;
+    private String previewType;
 }
 
