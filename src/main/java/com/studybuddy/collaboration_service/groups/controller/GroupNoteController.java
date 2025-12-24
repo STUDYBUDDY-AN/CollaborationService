@@ -40,11 +40,6 @@ public class GroupNoteController {
     }
 
     @GetMapping
-    public List<GroupNote> getNotes(@PathVariable UUID groupId) {
-        return groupNoteService.getNotes(groupId);
-    }
-
-    @GetMapping
     public ResponseEntity<List<GroupNote>> getNotes(
             @PathVariable UUID groupId,
             @RequestParam(required = false) String q,

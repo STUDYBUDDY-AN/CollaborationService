@@ -41,7 +41,7 @@ public class GroupNoteRepository {
 
     public void save(GroupNote note) {
         String sql = """
-        INSERT INTO notes (
+        INSERT INTO group_notes (
             id,
             group_id,
             uploaded_by,
@@ -72,7 +72,7 @@ public class GroupNoteRepository {
 
     public List<GroupNote> findByGroup(UUID groupId) {
         String sql = """
-                    SELECT * FROM notes
+                    SELECT * FROM group_notes
                     WHERE group_id = ?
                     ORDER BY created_at DESC
                 """;
@@ -82,8 +82,7 @@ public class GroupNoteRepository {
 
     public List<GroupNote> searchByTitle(UUID groupId, String query) {
         String sql = """
-        SELECT *
-        FROM notes
+        SELECT * FROM group_notes
         WHERE group_id = ?
           AND LOWER(title) LIKE ?
         ORDER BY created_at DESC
@@ -99,8 +98,7 @@ public class GroupNoteRepository {
 
     public List<GroupNote> filterByFileType(UUID groupId, String fileType) {
         String sql = """
-        SELECT *
-        FROM notes
+        SELECT * FROM group_notes
         WHERE group_id = ?
           AND file_type = ?
         ORDER BY created_at DESC
@@ -111,8 +109,7 @@ public class GroupNoteRepository {
 
     public List<GroupNote> filterByUploader(UUID groupId, UUID uploaderId) {
         String sql = """
-        SELECT *
-        FROM notes
+        SELECT * FROM group_notes
         WHERE group_id = ?
           AND uploaded_by = ?
         ORDER BY created_at DESC
@@ -133,8 +130,7 @@ public class GroupNoteRepository {
             int offset
     ) {
         StringBuilder sql = new StringBuilder("""
-        SELECT *
-        FROM notes
+        SELECT * FROM group_notes
         WHERE group_id = ?
     """);
 
