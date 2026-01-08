@@ -1,10 +1,13 @@
+server:
+  port: 8082
+
 spring:
   application:
     name: collaboration_service
   datasource:
     url: jdbc:mysql://localhost:3306/collaboration_service?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
     username: mr.mime
-    password: ThePantProject
+    password: StudyBuddy*123
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   # Enable HikariCP connection pool (default)
