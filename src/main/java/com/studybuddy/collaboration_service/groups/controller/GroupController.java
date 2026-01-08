@@ -4,20 +4,18 @@ import com.studybuddy.collaboration_service.groups.dto.Request.CreateGroupReques
 import com.studybuddy.collaboration_service.groups.dto.Response.CreateGroupResponse;
 import com.studybuddy.collaboration_service.groups.dto.Response.GroupResponse;
 import com.studybuddy.collaboration_service.groups.dto.Response.MemberListResponse;
-import com.studybuddy.collaboration_service.groups.entities.GroupMember;
 import com.studybuddy.collaboration_service.groups.entities.StudyGroup;
 import com.studybuddy.collaboration_service.groups.service.GroupService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/groups")
+@RequestMapping("/api/v1/groups")
 @AllArgsConstructor
 public class GroupController {
 
@@ -29,14 +27,12 @@ public class GroupController {
     @PostMapping
     public ResponseEntity<CreateGroupResponse> createGroup(
             @RequestBody CreateGroupRequest request,
-            Authentication authentication
+            @RequestHeader("X-User-Id") UUID userId
     ) {
-        UUID ownerId = UUID.fromString(authentication.getName());
-
         UUID groupId = groupService.createGroup(
                 request.getName(),
                 request.getDescription(),
-                ownerId
+                userId
         );
 
         return ResponseEntity
@@ -50,10 +46,8 @@ public class GroupController {
     @PostMapping("/{groupId}/join")
     public ResponseEntity<String> joinGroup(
             @PathVariable UUID groupId,
-            Authentication authentication
+            @RequestHeader("X-User-Id") UUID userId
     ) {
-        UUID userId = UUID.fromString(authentication.getName( ));
-
         groupService.addMemberToGroup(groupId, userId);
         return ResponseEntity.ok("Group joined successfully");
     }
@@ -80,10 +74,9 @@ public class GroupController {
     //----------------------------------------------
     @GetMapping("/me")
     public ResponseEntity<List<GroupResponse>> getMyGroups(
-            Authentication authentication
+            @RequestHeader("X-User-Id") UUID userId
     ) {
-        UUID userId = UUID.fromString(authentication.getName());
-        var groups = groupService.getAllGroupsOfUser(userId);
+         var groups = groupService.getAllGroupsOfUser(userId);
 
         var response = groups.stream()
                 .map(group -> new GroupResponse(
@@ -101,8 +94,7 @@ public class GroupController {
     //----------------------------------------------
     @GetMapping("/{groupId}/members")
     public ResponseEntity<MemberListResponse> getMembers(
-            @PathVariable UUID groupId,
-            Authentication authentication
+            @PathVariable UUID groupId
     ) {
         List<UUID> members = groupService.getMembers(groupId);
         return ResponseEntity.ok(new MemberListResponse(members));

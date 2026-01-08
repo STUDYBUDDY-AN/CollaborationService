@@ -8,9 +8,9 @@ import com.studybuddy.collaboration_service.groups.entities.GroupMessage;
 import com.studybuddy.collaboration_service.groups.service.MessageService;
 import lombok.AllArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 
 import java.time.Instant;
@@ -28,9 +28,9 @@ public class ChatWebSocketController {
     public void sendMessage(
             @DestinationVariable UUID groupId,
             SendMessageWsRequest payload,
-            Authentication authentication
+            @Header("X-User-Id") String userIdString
     ) {
-        UUID senderId = UUID.fromString(authentication.getName());
+        UUID senderId = UUID.fromString(userIdString);
 
         // Broadcast to all subscribers of this group
         ChatMessageEvent event;
@@ -76,9 +76,9 @@ public class ChatWebSocketController {
     public void typing(
             @DestinationVariable UUID groupId,
             TypingEvent payload,
-            Authentication authentication
+            @Header("X-User-Id") String userIdString
     ) {
-        UUID userId = UUID.fromString(authentication.getName());
+        UUID userId = UUID.fromString(userIdString);
 
         TypingEvent event = new TypingEvent(
                 groupId,
@@ -103,9 +103,9 @@ public class ChatWebSocketController {
     public void editMessage(
             @DestinationVariable UUID groupId,
             EditMessageWsRequest payload,
-            Authentication authentication
+            @Header("X-User-Id") String userIdString
     ) {
-        UUID userId = UUID.fromString(authentication.getName());
+        UUID userId = UUID.fromString(userIdString);
 
         GroupMessage message = messageService.editMessage(groupId, payload.messageId(), userId, payload.content());
 
@@ -132,9 +132,9 @@ public class ChatWebSocketController {
     public void deleteMessage(
             @DestinationVariable UUID groupId,
             DeleteMessageWsRequest payload,
-            Authentication authentication
+            @Header("X-User-Id") String userIdString
     ) {
-        UUID userId = UUID.fromString(authentication.getName());
+        UUID userId = UUID.fromString(userIdString);
 
         messageService.softDelete(groupId, payload.messageId(), userId);
 
@@ -156,4 +156,3 @@ public class ChatWebSocketController {
         );
     }
 }
-

@@ -6,7 +6,6 @@ import com.studybuddy.collaboration_service.groups.service.MessageService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
@@ -49,10 +48,8 @@ public class MessageController {
     public ResponseEntity<?> sendMessage(
             @PathVariable UUID groupId,
             @RequestBody SendMessageRequest request,
-            Authentication authentication
+            @RequestHeader("X-User-Id") UUID senderId
     ) {
-        UUID senderId = UUID.fromString(authentication.getName());
-
         UUID messageId = messageService.sendMessageWithAttachment(
                 groupId,
                 senderId,
@@ -76,4 +73,3 @@ public class MessageController {
         );
     }
 }
-

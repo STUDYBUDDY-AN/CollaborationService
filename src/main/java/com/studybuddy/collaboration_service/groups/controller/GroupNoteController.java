@@ -5,7 +5,6 @@ import com.studybuddy.collaboration_service.groups.entities.GroupNote;
 import com.studybuddy.collaboration_service.groups.service.GroupNoteService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,7 +12,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/groups/{groupId}/notes")
+@RequestMapping("/api/v1/groups/{groupId}/notes")
 @AllArgsConstructor
 public class GroupNoteController {
 
@@ -23,10 +22,8 @@ public class GroupNoteController {
     public ResponseEntity<?> uploadNote(
             @PathVariable UUID groupId,
             @RequestBody GroupNoteRequest request,
-            Authentication authentication
+            @RequestHeader("X-User-Id") UUID userId
     ) {
-        UUID userId = UUID.fromString(authentication.getName());
-
         UUID id = groupNoteService.saveNote(
                 groupId,
                 userId,
@@ -40,7 +37,7 @@ public class GroupNoteController {
     }
 
     @GetMapping
-    public ResponseEntity<List<GroupNote>> getNotes(
+    public ResponseEntity<List<GroupNote>> searchGroupNotes(
             @PathVariable UUID groupId,
             @RequestParam(required = false) String q,
             @RequestParam(required = false) String fileType,

@@ -5,7 +5,6 @@ import com.studybuddy.collaboration_service.groups.dto.Response.PresignUploadRes
 import com.studybuddy.collaboration_service.groups.service.FileStorageService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -13,7 +12,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/files")
+@RequestMapping("/api/v1/files")
 @AllArgsConstructor
 public class FileController {
 
@@ -36,12 +35,12 @@ public class FileController {
     @PostMapping("/presign/file")
     public ResponseEntity<PresignUploadResponse> presignUploadForUserFile(
             @RequestBody PresignUploadRequest request,
-            Authentication authentication
+            @RequestHeader("X-User-Id") UUID userId
     ) throws Exception {
 
         PresignUploadResponse response =
                 fileStorageService.createPresignedForUserFile(
-                        UUID.fromString(authentication.getName()),
+                        userId,
                         request.fileName(),
                         request.fileType()
                 );
@@ -85,4 +84,3 @@ public class FileController {
         return ResponseEntity.ok(response);
     }
 }
-

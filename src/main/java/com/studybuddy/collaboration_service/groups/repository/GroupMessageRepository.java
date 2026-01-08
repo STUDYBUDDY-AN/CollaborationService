@@ -21,15 +21,32 @@ public class GroupMessageRepository {
 
     private final RowMapper<GroupMessage> mapper = (rs, rowNum) -> {
         GroupMessage message = new GroupMessage();
-            message.setId(UUID.fromString(rs.getString("id")));
-            message.setGroupId(UUID.fromString(rs.getString("group_id")));
-            message.setSenderId(UUID.fromString(rs.getString("sender_id")));
-            message.setContent(rs.getString("content"));
-            message.setSentAt(rs.getTimestamp("sent_at").toInstant());
-            message.setEditedAt(rs.getTimestamp("edited_at").toInstant());
-            message.setDeletedAt(rs.getTimestamp("deleted_at").toInstant());
-            message.setDeletedBy(UUID.fromString(rs.getString("deleted_by")));
-            message.setDeleted(rs.getBoolean("deleted"));
+        message.setId(UUID.fromString(rs.getString("id")));
+        message.setGroupId(UUID.fromString(rs.getString("group_id")));
+        message.setSenderId(UUID.fromString(rs.getString("sender_id")));
+        message.setContent(rs.getString("content"));
+
+        Timestamp sentAt = rs.getTimestamp("sent_at");
+        if (sentAt != null) {
+            message.setSentAt(sentAt.toInstant());
+        }
+
+        Timestamp editedAt = rs.getTimestamp("edited_at");
+        if (editedAt != null) {
+            message.setEditedAt(editedAt.toInstant());
+        }
+
+        Timestamp deletedAt = rs.getTimestamp("deleted_at");
+        if (deletedAt != null) {
+            message.setDeletedAt(deletedAt.toInstant());
+        }
+
+        String deletedBy = rs.getString("deleted_by");
+        if (deletedBy != null) {
+            message.setDeletedBy(UUID.fromString(deletedBy));
+        }
+
+        message.setDeleted(rs.getBoolean("deleted"));
         return message;
     };
 
