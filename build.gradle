@@ -25,10 +25,38 @@ repositories {
 }
 
 dependencies {
+	// ----------------------------------------------------
+	// Spring Boot Starters
+	// ----------------------------------------------------
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	compileOnly 'org.projectlombok:lombok'
+	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+	// ----------------------------------------------------
+	// Database
+	// ----------------------------------------------------
+	implementation 'org.flywaydb:flyway-core'
+	implementation 'org.flywaydb:flyway-mysql'
+	runtimeOnly 'com.mysql:mysql-connector-j'
+
+	// ----------------------------------------------------
+	// API & Messaging
+	// ----------------------------------------------------
+	implementation 'org.springframework:spring-messaging'
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.15'
+
+	// ----------------------------------------------------
+	// Utilities & File Storage
+	// ----------------------------------------------------
+	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+	implementation 'io.minio:minio:8.6.0'
+
+	// ----------------------------------------------------
+	// Testing
+	// ----------------------------------------------------
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
