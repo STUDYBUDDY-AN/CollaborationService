@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   collaboration-service:
     build: .
@@ -6,19 +5,21 @@ services:
     ports:
       - "8082:8082"
     environment:
-      SERVER_PORT: 8082
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/collaboration_service?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-      SPRING_DATASOURCE_USERNAME: mr.mime
-      SPRING_DATASOURCE_PASSWORD: StudyBuddy*123
-
+      SPRING_DATASOURCE_URL: jdbc:mysql://collaboration-mysql-dev:3306/collaboration_service?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_RABBITMQ_HOST: rabbitmq-dev
+      MINIO_ENDPOINT: http://collaboration-minio-dev:9000
     depends_on:
-      - mysql
-      - minio
+      collaboration-mysql-dev:
+        condition: service_healthy
+      collaboration-minio-dev:
+        condition: service_healthy
+      rabbitmq-dev:
+        condition: service_started
     restart: on-failure
 
-  mysql:
+  collaboration-mysql-dev:
     image: mysql:8.0
-    container_name: mysql_container
+    container_name: collaboration-mysql-dev
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: StudyBuddy*123
@@ -29,19 +30,40 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u$$MYSQL_USER -p$$MYSQL_PASSWORD || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
-  minio:
+  collaboration-minio-dev:
     image: minio/minio
-    container_name: minio
+    container_name: collaboration-minio-dev
     command: server /data --console-address ":9001"
     environment:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
     ports:
-      - "9000:9000"   # S3 API
-      - "9001:9001"   # Web UI
+      - "9000:9000"
+      - "9001:9001"
     volumes:
       - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq-dev:
+    image: rabbitmq:3-management
+    container_name: rabbitmq-dev
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
 
 volumes:
   mysql_data:

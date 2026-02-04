@@ -3,12 +3,20 @@ server:
 
 spring:
   application:
-    name: collaboration_service
+    name: collaboration-service
   datasource:
-    url: jdbc:mysql://localhost:3306/collaboration_service?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    url: jdbc:mysql://collaboration-mysql:3306/collaboration_service?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
     username: mr.mime
     password: StudyBuddy*123
     driver-class-name: com.mysql.cj.jdbc.Driver
+  config:
+    import: optional:configserver:http://config-server:8888
+
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: guest
+    password: guest
 
   # Enable HikariCP connection pool (default)
   datasource.hikari:
@@ -28,4 +36,12 @@ logging:
   level:
     org.springframework.jdbc.core: DEBUG   # Show SQL logs
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,refresh
 
+testing:
+  profile:
+    name: default
