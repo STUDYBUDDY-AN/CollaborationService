@@ -20,6 +20,8 @@ This project is a Spring Boot-based microservice for managing study groups withi
 *   **MySQL** (Database)
 *   **Flyway** (Database Migrations)
 *   **MinIO** (Object Storage for files)
+*   **RabbitMQ** (Message Broker)
+*   **Spring Cloud Config** (Centralized Configuration)
 *   **Spring WebSocket**
 *   **Lombok**
 
@@ -36,12 +38,12 @@ The project follows a standard Spring Boot layered architecture:
 ### Prerequisites
 
 *   JDK 25
-*   Docker (for running MySQL and MinIO)
+*   Docker (for running MySQL, MinIO, and RabbitMQ)
 
 ### Running the application
 
 1.  **Start the infrastructure:**
-    Ensure you have a `docker-compose.yml` file (or equivalent) to start MySQL and MinIO.
+    Ensure you have a `docker-compose.yml` file (or equivalent) to start MySQL, MinIO, and RabbitMQ.
     ```bash
     docker-compose up -d
     ```
@@ -51,7 +53,7 @@ The project follows a standard Spring Boot layered architecture:
     ./gradlew bootRun
     ```
 
-The application will be available at `http://localhost:8080`.
+The application will be available at `http://localhost:8082`.
 
 ### Building the application
 
@@ -60,6 +62,23 @@ To build the application into a JAR file, run:
 ```bash
 ./gradlew build
 ```
+
+## Configuration
+
+The application is configured via `src/main/resources/application.yml`. Key default settings include:
+
+*   **Server Port:** `8082`
+*   **Application Name:** `collaboration-service`
+*   **Database:**
+    *   URL: `jdbc:mysql://localhost:3306/collaboration_service`
+    *   Username: `mr.mime`
+    *   Password: `StudyBuddy*123`
+*   **RabbitMQ:**
+    *   Host: `localhost`
+    *   Port: `5672`
+*   **Config Server:**
+    *   URL: `http://localhost:8888` (Optional)
+*   **Actuator Endpoints:** `health`, `info`, `refresh`
 
 ## Authentication
 

@@ -11,19 +11,20 @@ This project is a Spring Boot-based microservice for managing study groups.
     *   Gradle
     *   MySQL
     *   Flyway for database migrations
+    *   MinIO for object storage
     *   Lombok
-*   **Architecture:** The project follows a standard Spring Boot application structure. It exposes a REST API for managing study groups, with data persisted in a MySQL database.
+*   **Architecture:** The project follows a standard Spring Boot application structure. It exposes a REST API for managing study groups, with data persisted in a MySQL database and files stored in MinIO.
 
 ## Building and Running
 
 ### Prerequisites
 
 *   JDK 25
-*   Docker (for running the MySQL database)
+*   Docker (for running the MySQL database and MinIO)
 
 ### Running the application
 
-1.  **Start the database:**
+1.  **Start the database and MinIO:**
     ```bash
     docker-compose up -d
     ```
@@ -33,7 +34,7 @@ This project is a Spring Boot-based microservice for managing study groups.
     ./gradlew bootRun
     ```
 
-The application will be available at `http://localhost:8080`.
+The application will be available at `http://localhost:8082`.
 
 ### Building the application
 
@@ -55,9 +56,9 @@ To build the application into a JAR file, run:
 ## Key Files
 
 *   `build.gradle`: Defines project dependencies and build configuration.
-*   `docker-compose.yml`: Defines the MySQL database service.
+*   `docker-compose.yml`: Defines the MySQL and MinIO services.
 *   `src/main/java/com/studybuddy/collaboration_service/CollaborationServiceApplication.java`: The main Spring Boot application class.
-*   `src/main/resources/application.properties`: Application configuration (e.g., database connection details).
+*   `src/main/resources/application.yml`: Application configuration (e.g., database connection details).
 *   `src/main/resources/db/migration/V1__create_collaboration_tables.sql`: The initial database schema.
 *   `src/main/java/com/studybuddy/collaboration_service/groups/controller/GroupController.java`: The REST controller for managing groups.
 *   `src/main/java/com/studybuddy/collaboration_service/groups/service/GroupService.java`: The service layer containing the business logic for group management.
