@@ -1,8 +1,0 @@
-logging:
-  level:
-    root: WARN
-    com.studybuddy: INFO
-
-testing:
-  profile:
-    name: prod

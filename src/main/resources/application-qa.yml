@@ -1,8 +1,0 @@
-logging:
-  level:
-    root: INFO
-    com.studybuddy: INFO
-
-testing:
-  profile:
-    name: qa

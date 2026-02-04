@@ -5,11 +5,16 @@ services:
     ports:
       - "8082:8082"
     environment:
-      SPRING_PROFILES_ACTIVE: dev
+      SPRING_DATASOURCE_URL: jdbc:mysql://collaboration-mysql-dev:3306/collaboration_service?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_RABBITMQ_HOST: rabbitmq-dev
+      MINIO_ENDPOINT: http://collaboration-minio-dev:9000
     depends_on:
-      - collaboration-mysql-dev
-      - collaboration-minio-dev
-      - rabbitmq-dev
+      collaboration-mysql-dev:
+        condition: service_healthy
+      collaboration-minio-dev:
+        condition: service_healthy
+      rabbitmq-dev:
+        condition: service_started
     restart: on-failure
 
   collaboration-mysql-dev:
