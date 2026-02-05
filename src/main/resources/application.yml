@@ -44,4 +44,4 @@ management:
 
 testing:
   profile:
-    name: default
+    name: default-profile
