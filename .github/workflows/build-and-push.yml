@@ -19,6 +19,9 @@ jobs:
           distribution: temurin
           java-version: 25
 
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
       - name: Build & Push image with Jib
         run: ./gradlew jib
         env:
