@@ -33,6 +33,10 @@ jib {
 	to {
 		image = 'toxicgeek/collaboration-service'
 		tags = [ project.version.toString() ]
+		auth {
+			username = System.getenv('JIB_TO_AUTH_USERNAME') ?: ''
+			password = System.getenv('JIB_TO_AUTH_PASSWORD') ?: ''
+		}
 	}
 
 	container {
