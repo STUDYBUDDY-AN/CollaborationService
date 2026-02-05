@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.5.8'
 	id 'io.spring.dependency-management' version '1.1.7'
+	id 'com.google.cloud.tools.jib' version '3.5.2'
 }
 
 group = 'com.studybuddy'
@@ -22,6 +23,27 @@ configurations {
 
 repositories {
 	mavenCentral()
+}
+
+jib {
+	from {
+		image = 'eclipse-temurin:25-jdk'
+	}
+
+	to {
+		image = 'toxicgeek/collaboration-service'
+		tags = [ project.version.toString() ]
+	}
+
+	container {
+		ports = ['8082']
+		creationTime = 'USE_CURRENT_TIMESTAMP'
+
+		jvmFlags = [
+				'-XX:MaxRAMPercentage=70.0',
+				'-XX:+ExitOnOutOfMemoryError'
+		]
+	}
 }
 
 dependencyManagement {

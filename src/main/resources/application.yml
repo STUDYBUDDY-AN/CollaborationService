@@ -10,10 +10,10 @@ spring:
     password: StudyBuddy*123
     driver-class-name: com.mysql.cj.jdbc.Driver
   config:
-    import: optional:configserver:http://config-server:8888
+    import: optional:configserver:http://${CONFIG_SERVER_HOST:config-server}:8888
 
   rabbitmq:
-    host: rabbitmq
+    host: ${RABBITMQ_HOST:rabbitmq}
     port: 5672
     username: guest
     password: guest
