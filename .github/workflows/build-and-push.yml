@@ -22,5 +22,5 @@ jobs:
       - name: Build & Push image with Jib
         run: ./gradlew jib
         env:
-          JIB_TO_AUTH_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-          JIB_TO_AUTH_PASSWORD: ${{ secrets.DOCKERHUB_TOKEN }}
+          JIB_TO_AUTH_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          JIB_TO_AUTH_PASSWORD: ${{ secrets.DOCKER_PASS }}
