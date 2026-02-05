@@ -27,7 +27,7 @@ repositories {
 
 jib {
 	from {
-		image = 'eclipse-temurin:25-jdk'
+		image = 'eclipse-temurin:25-jre'
 	}
 
 	to {
